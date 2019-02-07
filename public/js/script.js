@@ -1,3 +1,4 @@
+axios.defaults.withCredentials = true
 
 function addMeme(data, before) {
 

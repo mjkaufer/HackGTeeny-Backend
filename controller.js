@@ -1,5 +1,6 @@
 //db gives us access to our database
 var db = require('./dbs');
+var path = require('path');
 
 //variables in module.exports can be accessed by classes that import this one
 //module.exports is a dictionary
@@ -68,3 +69,25 @@ module.exports.api = function (req, res) {
 	res.status(200).send("Welcome to the secret developer page.<br><img src='https://media.giphy.com/media/kKefeMw8rbMVq/giphy.gif'><br>It's lit");
 };
 
+// middleware
+// note, you should never hard code this stuff in
+// usually it would be stored in a database, or if you just have one token, you'd set it through
+// an environment variable
+const token = 'howdy'
+
+module.exports.middleware = function (req, res, next) {
+
+	if (req.cookies.key == token) {
+		// if their password is right, let them in
+		next()
+	} else {
+		// otherwise, send them to the cookies
+		res.redirect('/cookies');
+	}
+}
+
+module.exports.sendFile = function (fileName) {
+	return function(req, res) {
+		res.sendFile(path.join(__dirname + fileName))
+	}
+}

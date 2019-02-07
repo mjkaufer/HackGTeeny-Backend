@@ -5,6 +5,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 //path is just to help us a little later on, in order to find the directory where our public assets are
 var path = require('path');
+var cookieParser = require('cookie-parser');
+
 
 //requires our helpful database file from dbs.js
 var controller = require('./controller');
@@ -12,15 +14,27 @@ var controller = require('./controller');
 //sets up web server
 var app = express();
 
+var requireAuth = true
 
 //some nerd stuff that sets your server port and lets you read POST requests with a JSON payload
 app.set('port', process.env.PORT || 3000);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+// if we want the user to authenticate
+if (requireAuth) {
+    // add the middleware
+    app.use('/js', express.static(path.join(__dirname, '/public/js')));
+    app.use('/cookies', express.static(path.join(__dirname, '/public/cookies.html')));
+    app.use(controller.middleware)
 
-//lets us access the files in our `public` folder, so going to http://yourwebsite.com/ will open index.html, located in the `public` folder
-app.use(express.static(path.join(__dirname, 'public')));
+    app.get('/', controller.sendFile('/public/index.html'));
+    
+} else {
+    //lets us access the files in our `public` folder, so going to http://yourwebsite.com/ will open index.html, located in the `public` folder
+    app.use(express.static(path.join(__dirname, 'public')));
+}
+
 
 //when the user makes a get request to http://yourwebsite.com/api, they'll get a secret page!
 app.get('/api', controller.api);
